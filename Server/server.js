@@ -29,20 +29,6 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(express.json());
 
-const PORT = 5000;
-
-// Database connection
-connectDB(process.env.MONGO_URL)
-  .then(() => {
-    console.log("Database connected successfully");
-    app.listen(PORT, () => {
-      console.log(`Server is running on http://localhost:${PORT}`);
-    });
-  })
-  .catch((err) => {
-    console.error("Database connection failed:", err);
-  });
-
 // Static files for images
 app.use("/Images", express.static(path.join(__dirname, "public", "Images")));
 
@@ -66,8 +52,16 @@ app.get("/", (req, res) => {
   res.json({ message: "Server is up and running!" });
 });
 
+// Database connection and export for Vercel
+const PORT = process.env.PORT || 5000;
 
-// Server start
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
+connectDB(process.env.MONGO_URL)
+  .then(() => {
+    console.log("Database connected successfully");
+  })
+  .catch((err) => {
+    console.error("Database connection failed:", err);
+  });
+
+// Export the app for Vercel serverless functions
+module.exports = app;
